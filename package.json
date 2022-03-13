@@ -12,7 +12,7 @@
 		"@chakra-ui/react": "^1.8.6",
 		"@emotion/react": "^11",
 		"@emotion/styled": "^11",
-		"@fontsource/inter": "^4.5.4",
+		"@fontsource/inter": "^4.5.5",
 		"@fontsource/pt-sans": "^4.5.2",
 		"@fontsource/space-grotesk": "^4.5.3",
 		"axios": "^0.26.1",
