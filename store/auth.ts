@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { stat } from "fs";
 import { getUser } from "../services/api/auth";
 import { User } from "../types/auth";
 
@@ -37,6 +36,9 @@ export const authSlice = createSlice({
 		setUser: (state, action: PayloadAction<User>) => {
 			state.user = action.payload;
 		},
+		setLoading: (state, action: PayloadAction<boolean>) => {
+			state.loading = action.payload;
+		}
 	},
 	extraReducers: (builder) => {
 		builder.addCase(fetchUser.fulfilled, (state, action) => {

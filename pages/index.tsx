@@ -23,14 +23,29 @@ import { SleepStatus } from "../types/auth";
 import { BsPencil, BsThreeDotsVertical } from "react-icons/bs";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { fetchUser } from "../store/auth";
+import { io } from "socket.io-client";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
-	const { data, isLoading, error } = useQuery("all-users", getAllUsers);
+	const { data, isLoading, error, refetch } = useQuery(
+		"all-users",
+		getAllUsers,
+		{ enabled: isLoggedIn },
+	);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
+
+	const onClickChangeStatus: React.MouseEventHandler<
+		HTMLButtonElement
+	> = async (e) => {
+		await changeStatus(
+			user!.sleepStatus === SleepStatus.asleep
+				? SleepStatus.awake
+				: SleepStatus.asleep,
+		);
+	};
 
 	useEffect(() => {
 		if (!isLoggedIn) {
@@ -43,6 +58,19 @@ const Home: NextPage = () => {
 			router.push("/login");
 		}
 	});
+
+	useEffect(() => {
+		if (isLoggedIn) {
+			const socket = io("localhost:5000", {
+				extraHeaders: { googleid: user!.googleId },
+			});
+			socket.on("connect", () => {
+				socket.on("status", (status: any) => {
+					refetch();
+				});
+			});
+		}
+	}, [isLoggedIn]);
 
 	if (!data || isLoading || loading || !isLoggedIn) {
 		return <Loader />;
@@ -61,54 +89,47 @@ const Home: NextPage = () => {
 			</Center>
 			<Box>
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
-					{data.data.map((user) => (
+					{data.data.map((mates) => (
 						<Box
 							maxW="md"
 							borderWidth="1px"
 							borderRadius="lg"
 							p="4"
-							key={user.name}
+							key={mates.name}
 							textAlign="center"
 						>
-							<Flex w="full" justifyContent="end">
-								<Menu placement="bottom-end">
-									<MenuButton
-										as={IconButton}
-										aria-label="Options"
-										icon={<BsThreeDotsVertical />}
-										variant="outline"
-										size="sm"
-										color="gray.600"
-									/>
-									<MenuList>
-										<MenuItem
-											icon={<BsPencil />}
-											onClick={async () => {
-												const newUser =
-													await changeStatus(
-														user.sleepStatus ===
-															SleepStatus.asleep
-															? SleepStatus.awake
-															: SleepStatus.asleep,
-													);
-												console.log(newUser);
-											}}
-										>
-											Change Status
-										</MenuItem>
-									</MenuList>
-								</Menu>
-							</Flex>
-							<Box mt={-6}>
+							{user?.name === mates.name && (
+								<Flex w="full" justifyContent="end">
+									<Menu placement="bottom-end">
+										<MenuButton
+											as={IconButton}
+											aria-label="Options"
+											icon={<BsThreeDotsVertical />}
+											variant="outline"
+											size="sm"
+											color="gray.600"
+										/>
+										<MenuList>
+											<MenuItem
+												icon={<BsPencil />}
+												onClick={onClickChangeStatus}
+											>
+												Change Status
+											</MenuItem>
+										</MenuList>
+									</Menu>
+								</Flex>
+							)}
+							<Box mt={user?.name === mates.name ? -6 : 2}>
 								<Avatar size="lg">
 									<Tooltip
-										label={user.sleepStatus}
-										aria-label={user.sleepStatus}
+										label={mates.sleepStatus}
+										aria-label={mates.sleepStatus}
 										gutter={2}
 									>
 										<AvatarBadge
 											bg={
-												user.sleepStatus ===
+												mates.sleepStatus ===
 												SleepStatus.awake
 													? "green.500"
 													: "gray.400"
@@ -123,7 +144,7 @@ const Home: NextPage = () => {
 										fontWeight="500"
 										color="gray.500"
 									>
-										{user.roomNumber}
+										{mates.roomNumber}
 									</Text>
 									<Text
 										fontWeight="600"
@@ -131,7 +152,7 @@ const Home: NextPage = () => {
 										color="gray.700"
 										mt={-1}
 									>
-										{toNameCase(user.name)}
+										{toNameCase(mates.name)}
 									</Text>
 								</Box>
 							</Box>
