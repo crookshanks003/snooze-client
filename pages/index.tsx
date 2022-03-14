@@ -1,31 +1,20 @@
 import {
-	Avatar,
-	AvatarBadge,
 	Box,
 	Center,
-	Flex,
 	Heading,
-	IconButton,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
 	SimpleGrid,
-	Text,
-	Tooltip,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { Loader } from "../components/loader";
-import { changeStatus, getAllUsers } from "../services/api/auth";
+import { getAllUsers } from "../services/api/auth";
 import { toNameCase } from "../services/utils";
-import { SleepStatus } from "../types/auth";
-import { BsPencil, BsThreeDotsVertical } from "react-icons/bs";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { fetchUser } from "../store/auth";
 import { io } from "socket.io-client";
+import { UserCard } from "../components/userCard";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
@@ -36,16 +25,6 @@ const Home: NextPage = () => {
 	);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
-
-	const onClickChangeStatus: React.MouseEventHandler<
-		HTMLButtonElement
-	> = async (e) => {
-		await changeStatus(
-			user!.sleepStatus === SleepStatus.asleep
-				? SleepStatus.awake
-				: SleepStatus.asleep,
-		);
-	};
 
 	useEffect(() => {
 		if (!isLoggedIn) {
@@ -65,7 +44,7 @@ const Home: NextPage = () => {
 				extraHeaders: { googleid: user!.googleId },
 			});
 			socket.on("connect", () => {
-				socket.on("status", (status: any) => {
+				socket.on("status", (_status: any) => {
 					refetch();
 				});
 			});
@@ -89,74 +68,8 @@ const Home: NextPage = () => {
 			</Center>
 			<Box>
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
-					{data.data.map((mates) => (
-						<Box
-							maxW="md"
-							borderWidth="1px"
-							borderRadius="lg"
-							p="4"
-							key={mates.name}
-							textAlign="center"
-						>
-							{user?.name === mates.name && (
-								<Flex w="full" justifyContent="end">
-									<Menu placement="bottom-end">
-										<MenuButton
-											as={IconButton}
-											aria-label="Options"
-											icon={<BsThreeDotsVertical />}
-											variant="outline"
-											size="sm"
-											color="gray.600"
-										/>
-										<MenuList>
-											<MenuItem
-												icon={<BsPencil />}
-												onClick={onClickChangeStatus}
-											>
-												Change Status
-											</MenuItem>
-										</MenuList>
-									</Menu>
-								</Flex>
-							)}
-							<Box mt={user?.name === mates.name ? -6 : 2}>
-								<Avatar size="lg">
-									<Tooltip
-										label={mates.sleepStatus}
-										aria-label={mates.sleepStatus}
-										gutter={2}
-									>
-										<AvatarBadge
-											bg={
-												mates.sleepStatus ===
-												SleepStatus.awake
-													? "green.500"
-													: "gray.400"
-											}
-											boxSize="1em"
-										/>
-									</Tooltip>
-								</Avatar>
-								<Box color="gray.500" mt="2">
-									<Text
-										as="small"
-										fontWeight="500"
-										color="gray.500"
-									>
-										{mates.roomNumber}
-									</Text>
-									<Text
-										fontWeight="600"
-										fontSize="lg"
-										color="gray.700"
-										mt={-1}
-									>
-										{toNameCase(mates.name)}
-									</Text>
-								</Box>
-							</Box>
-						</Box>
+					{data.data.map((wingie) => (
+						<UserCard wingie={wingie} key={wingie.googleId}/>
 					))}
 				</SimpleGrid>
 			</Box>
