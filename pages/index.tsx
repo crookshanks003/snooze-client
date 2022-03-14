@@ -17,23 +17,46 @@ import {
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { Loader } from "../components/loader";
-import { changeStatus, getAllUsers, getUser } from "../services/api/auth";
+import { changeStatus, getAllUsers } from "../services/api/auth";
 import { toNameCase } from "../services/utils";
 import { SleepStatus } from "../types/auth";
 import { BsPencil, BsThreeDotsVertical } from "react-icons/bs";
+import { useAppDispatch, useAppSelector } from "../store";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { fetchUser } from "../store/auth";
 
-const Home: NextPage<{ isLoading: boolean }> = () => {
+const Home: NextPage = () => {
+	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
 	const { data, isLoading, error } = useQuery("all-users", getAllUsers);
+	const router = useRouter();
+	const dispatch = useAppDispatch();
 
-	if (!data || isLoading) {
+	useEffect(() => {
+		if (!isLoggedIn) {
+			dispatch(fetchUser());
+		}
+	}, []);
+
+	useEffect(() => {
+		if (!isLoggedIn) {
+			router.push("/login");
+		}
+	});
+
+	if (!data || isLoading || loading || !isLoggedIn) {
 		return <Loader />;
 	}
 
 	return (
-		<Box width={["100%", null, "90%", null, "80%"]} mx="auto">
+		<Box
+			width={["100%", null, "90%", null, "80%"]}
+			mx="auto"
+			px={[6, 8, 0]}
+		>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
-					Hello, Pritesh
+					Hello, {toNameCase(user!.name)}
 				</Heading>
 			</Center>
 			<Box>

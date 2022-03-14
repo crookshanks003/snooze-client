@@ -10,16 +10,40 @@ import {
 	Link,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
-import React from "react";
+import React, { useEffect } from "react";
+import { fetchUser } from "../store/auth";
+import { useAppDispatch, useAppSelector } from "../store";
+import { useRouter } from "next/router";
+import { Loader } from "../components/loader";
 
 const Login: NextPage = () => {
+	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
+	const router = useRouter();
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (!isLoggedIn) {
+			dispatch(fetchUser());
+		}
+	}, []);
+
+	useEffect(() => {
+		if (isLoggedIn) {
+			router.push("/");
+		}
+	});
+
+	if (loading || isLoggedIn) {
+		return <Loader />;
+	}
+
 	return (
 		<>
 			<Flex
 				height="100vh"
 				alignItems="center"
 				justifyContent="center"
-				mt={-8}
+				mt={-10}
 			>
 				<Stack
 					as={Box}

@@ -11,6 +11,8 @@ import "@fontsource/space-grotesk/600.css";
 import "@fontsource/space-grotesk/700.css";
 import { extendTheme } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Provider } from "react-redux";
+import { store } from "../store";
 
 const theme = extendTheme({
 	fonts: {
@@ -22,11 +24,13 @@ const theme = extendTheme({
 const queryClient = new QueryClient();
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
-		<QueryClientProvider client={queryClient}>
-			<ChakraProvider theme={theme}>
-				<Component {...pageProps} isLoading/>
-			</ChakraProvider>
-		</QueryClientProvider>
+		<Provider store={store}>
+			<QueryClientProvider client={queryClient}>
+				<ChakraProvider theme={theme}>
+					<Component {...pageProps} />
+				</ChakraProvider>
+			</QueryClientProvider>
+		</Provider>
 	);
 }
 
