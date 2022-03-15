@@ -1,24 +1,35 @@
 import {
+	Avatar,
 	Box,
 	Flex,
+	HStack,
 	IconButton,
 	Input,
 	InputGroup,
 	InputRightAddon,
 	Text,
+	Tooltip,
 } from "@chakra-ui/react";
 import { IoMdSend } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import { useAppSelector } from "../store";
+import { useAppDispatch, useAppSelector } from "../store";
 import { toNameCase } from "../services/utils";
+import {
+	addConnectedUser,
+	removeConnectedUser,
+	setConnectedUsers,
+} from "../store/chat";
+import { User } from "../types/auth";
 
 export function Chat({ client }: { client?: Socket }) {
 	const [chat, setChat] = useState<{ message: string; user: string }[]>([]);
 	const [message, setMessage] = useState<string>();
 	const { user } = useAppSelector((state) => state.auth);
+	const { connectedUsers } = useAppSelector((state) => state.chat);
+	const dispatch = useAppDispatch();
 
-	const sendMessage = (e: any) => {
+	const sendMessage = (_e: any) => {
 		if (message) {
 			client!.emit("message", { message, user: toNameCase(user!.name) });
 			setChat([...chat, { message, user: toNameCase(user!.name) }]);
@@ -30,9 +41,21 @@ export function Chat({ client }: { client?: Socket }) {
 			client.on("message", (msg: { message: string; user: string }) => {
 				setChat([...chat, msg]);
 			});
+			client.on("newuser", (msg: { id: string; user: User }) => {
+				dispatch(addConnectedUser(msg));
+			});
+			client.on("logout", (id: string) => {
+				dispatch(removeConnectedUser(id));
+			});
+			client.on("connectedusers", (msg: { id: string; user: User }[]) => {
+				dispatch(setConnectedUsers(msg));
+			});
 		}
 		return () => {
 			client?.off("status");
+			client?.off("newuser");
+			client?.off("logout");
+			client?.off("connectedusers");
 		};
 	});
 
@@ -43,7 +66,7 @@ export function Chat({ client }: { client?: Socket }) {
 			right={[0, null, 8, null, 10]}
 			px={[6, 8, 0]}
 			mb={6}
-			width={["100%", null, "45%", null, "25%"]}
+			width={["100%", null, "45%", "35%", "25%"]}
 		>
 			<Box
 				overflowY="auto"
@@ -71,6 +94,21 @@ export function Chat({ client }: { client?: Socket }) {
 					sendMessage(e);
 				}}
 			>
+				<HStack spacing="4px">
+					{connectedUsers.map((client) => (
+						<Tooltip
+							label={toNameCase(client.user.name.split(" ")[0])}
+							aria-label={client.user.name}
+							gutter={2}
+						>
+							<Avatar
+								size="xs"
+								name={client.user.name.split(" ")[0]}
+								src={client.user.image}
+							/>
+						</Tooltip>
+					))}
+				</HStack>
 				<InputGroup mt="4">
 					<Input
 						colorScheme="gray.500"
