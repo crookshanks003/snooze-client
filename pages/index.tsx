@@ -1,9 +1,4 @@
-import {
-	Box,
-	Center,
-	Heading,
-	SimpleGrid,
-} from "@chakra-ui/react";
+import { Box, Center, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { Loader } from "../components/loader";
@@ -11,10 +6,12 @@ import { getAllUsers } from "../services/api/auth";
 import { toNameCase } from "../services/utils";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { fetchUser } from "../store/auth";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { UserCard } from "../components/userCard";
+import { isLocalURL } from "next/dist/shared/lib/router/router";
+import { Chat } from "../components/chat";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
@@ -25,6 +22,7 @@ const Home: NextPage = () => {
 	);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
+	const [client, setClient] = useState<Socket>();
 
 	useEffect(() => {
 		if (!isLoggedIn) {
@@ -39,17 +37,31 @@ const Home: NextPage = () => {
 	});
 
 	useEffect(() => {
+		let socket: Socket;
 		if (isLoggedIn) {
-			const socket = io("localhost:5000", {
+			socket = io("localhost:5000", {
 				extraHeaders: { googleid: user!.googleId },
 			});
 			socket.on("connect", () => {
-				socket.on("status", (_status: any) => {
-					refetch();
-				});
+				console.log("connected");
+			});
+			setClient(socket);
+		}
+		return () => {
+			if (socket) socket.close();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (client) {
+			client.on("status", (_status: any) => {
+				refetch();
 			});
 		}
-	}, [isLoggedIn]);
+		return () => {
+			client?.off("status");
+		};
+	});
 
 	if (!data || isLoading || loading || !isLoggedIn) {
 		return <Loader />;
@@ -69,10 +81,11 @@ const Home: NextPage = () => {
 			<Box>
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
 					{data.data.map((wingie) => (
-						<UserCard wingie={wingie} key={wingie.googleId}/>
+						<UserCard wingie={wingie} key={wingie.googleId} />
 					))}
 				</SimpleGrid>
 			</Box>
+			<Chat client={client} />
 		</Box>
 	);
 };

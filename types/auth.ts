@@ -11,4 +11,5 @@ export interface User {
 	name: string;
 	roomNumber: number;
 	sleepStatus: SleepStatus;
+	image?: string;
 }

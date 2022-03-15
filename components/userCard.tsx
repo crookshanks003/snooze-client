@@ -67,7 +67,7 @@ export function UserCard({wingie}: {wingie: User}) {
 				</Flex>
 			)}
 			<Box mt={user?.name === wingie.name ? -6 : 2}>
-				<Avatar size="lg">
+				<Avatar size="lg" src={wingie.image} name={wingie.name}>
 					<Tooltip
 						label={wingie.sleepStatus}
 						aria-label={wingie.sleepStatus}
