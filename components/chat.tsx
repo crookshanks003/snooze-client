@@ -15,11 +15,7 @@ import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { useAppDispatch, useAppSelector } from "../store";
 import { toNameCase } from "../services/utils";
-import {
-	addConnectedUser,
-	removeConnectedUser,
-	setConnectedUsers,
-} from "../store/chat";
+import { addConnectedUser, removeConnectedUser, setConnectedUsers } from "../store/chat";
 import { User } from "../types/auth";
 
 export function Chat({ client }: { client?: Socket }) {
@@ -68,21 +64,12 @@ export function Chat({ client }: { client?: Socket }) {
 			mb={6}
 			width={["100%", null, "45%", "35%", "25%"]}
 		>
-			<Box
-				overflowY="auto"
-				maxH="20vh"
-				css={{ scrollbarWidth: "thin" }}
-				px="1"
-			>
+			<Box overflowY="auto" maxH="20vh" css={{ scrollbarWidth: "thin" }} px="1">
 				{chat.map((msg) => (
 					<Text
 						key={msg.message}
 						as={Flex}
-						justifyContent={
-							msg.user === toNameCase(user!.name)
-								? "end"
-								: "start"
-						}
+						justifyContent={msg.user === toNameCase(user!.name) ? "end" : "start"}
 					>
 						{msg.message}
 					</Text>
@@ -100,6 +87,7 @@ export function Chat({ client }: { client?: Socket }) {
 							label={toNameCase(client.user.name.split(" ")[0])}
 							aria-label={client.user.name}
 							gutter={2}
+							key={client.id}
 						>
 							<Avatar
 								size="xs"
@@ -116,11 +104,7 @@ export function Chat({ client }: { client?: Socket }) {
 						placeholder="message"
 						onChange={(e) => setMessage(e.target.value)}
 					/>
-					<InputRightAddon
-						as={IconButton}
-						icon={<IoMdSend />}
-						onClick={sendMessage}
-					/>
+					<InputRightAddon as={IconButton} icon={<IoMdSend />} onClick={sendMessage} />
 				</InputGroup>
 			</form>
 		</Box>

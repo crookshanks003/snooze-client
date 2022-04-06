@@ -6,6 +6,15 @@
 		"sourceType": "module"
 	},
 	"rules": {
+		"prettier/prettier": [
+			"error",
+			{
+				"singleQuote": false,
+				"printWidth": 100,
+				"useTabs": true,
+				"tabWidth": 4
+			}
+		],
 		"@typescript-eslint/interface-name-prefix": "off",
 		"@typescript-eslint/explicit-function-return-type": "off",
 		"@typescript-eslint/explicit-module-boundary-types": "off",

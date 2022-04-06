@@ -47,15 +47,11 @@ export function UserCard({ wingie }: { wingie: User }) {
 		}
 	};
 
-	const onClickChangeStatus: React.MouseEventHandler<
-		HTMLButtonElement
-	> = async (_e) => {
+	const onClickChangeStatus: React.MouseEventHandler<HTMLButtonElement> = async (_e) => {
 		setButtonLoading(true);
 		try {
 			await changeStatus(
-				wingie!.sleepStatus === SleepStatus.asleep
-					? SleepStatus.awake
-					: SleepStatus.asleep,
+				wingie!.sleepStatus === SleepStatus.asleep ? SleepStatus.awake : SleepStatus.asleep,
 			);
 			toast({
 				title: "Status changed successfully!",
@@ -120,16 +116,10 @@ export function UserCard({ wingie }: { wingie: User }) {
 								color="gray.600"
 							/>
 							<MenuList>
-								<MenuItem
-									icon={<BsPencil />}
-									onClick={onClickChangeStatus}
-								>
+								<MenuItem icon={<BsPencil />} onClick={onClickChangeStatus}>
 									Change Status
 								</MenuItem>
-								<MenuItem
-									icon={<ImSpoonKnife />}
-									onClick={onOpen}
-								>
+								<MenuItem icon={<ImSpoonKnife />} onClick={onOpen}>
 									Change Meal
 								</MenuItem>
 							</MenuList>
@@ -157,15 +147,12 @@ export function UserCard({ wingie }: { wingie: User }) {
 						<Text as="small" fontWeight="500" color="gray.500">
 							{wingie.roomNumber}
 						</Text>
-						<Text
-							fontWeight="600"
-							fontSize="lg"
-							color="gray.700"
-							mt={-1}
-						>
+						<Text fontWeight="600" fontSize="lg" color="gray.700" mt={-1}>
 							{toNameCase(wingie.name)}
 						</Text>
-						<Text mt={2} fontSize="sm">{wingie.mealTime.join(", ")}</Text>
+						<Text mt={2} fontSize="sm">
+							{wingie.mealTime.join(", ")}
+						</Text>
 					</Box>
 				</Box>
 			</Box>

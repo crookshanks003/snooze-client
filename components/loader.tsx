@@ -6,7 +6,7 @@ export function Loader() {
 		<Box>
 			<Flex height="90vh" align="center" justify="center">
 				<Spinner
-				speed="0.5s"
+					speed="0.5s"
 					size="xl"
 					color="green.500"
 					thickness="4px"

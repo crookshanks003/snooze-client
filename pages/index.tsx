@@ -14,11 +14,9 @@ import { Chat } from "../components/chat";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
-	const { data, isLoading, error, refetch } = useQuery(
-		"all-users",
-		getAllUsers,
-		{ enabled: isLoggedIn },
-	);
+	const { data, isLoading, error, refetch } = useQuery("all-users", getAllUsers, {
+		enabled: isLoggedIn,
+	});
 	const router = useRouter();
 	const dispatch = useAppDispatch();
 	const [client, setClient] = useState<Socket>();
@@ -38,7 +36,7 @@ const Home: NextPage = () => {
 	useEffect(() => {
 		let socket: Socket;
 		if (isLoggedIn) {
-			socket = io("localhost:5000", {
+			socket = io(process.env.NEXT_PUBLIC_API_URL!, {
 				extraHeaders: { googleid: user!.googleId },
 			});
 			socket.on("connect", () => {
@@ -67,11 +65,7 @@ const Home: NextPage = () => {
 	}
 
 	return (
-		<Box
-			width={["100%", null, "90%", null, "80%"]}
-			mx="auto"
-			px={[6, 8, 0]}
-		>
+		<Box width={["100%", null, "90%", null, "80%"]} mx="auto" px={[6, 8, 0]}>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
 					Hello, {toNameCase(user!.name)}
