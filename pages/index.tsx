@@ -10,7 +10,6 @@ import React, { useEffect, useState } from "react";
 import { fetchUser } from "../store/auth";
 import { io, Socket } from "socket.io-client";
 import { UserCard } from "../components/userCard";
-import { isLocalURL } from "next/dist/shared/lib/router/router";
 import { Chat } from "../components/chat";
 
 const Home: NextPage = () => {
