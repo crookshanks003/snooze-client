@@ -14,7 +14,7 @@ const Login: NextPage = () => {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		if (checkLoggedIn()){
+		if (checkLoggedIn()) {
 			dispatch(setLoggedIn(true));
 			router.push("/");
 		}

@@ -7,7 +7,7 @@
 	},
 	"rules": {
 		"prettier/prettier": [
-			"error",
+			"warn",
 			{
 				"singleQuote": false,
 				"printWidth": 100,

@@ -14,13 +14,9 @@ import { Chat } from "../components/chat";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
-	const { data, isLoading, error, refetch } = useQuery(
-		"all-users",
-		getAllUsers,
-		{
-			enabled: isLoggedIn,
-		},
-	);
+	const { data, isLoading, error, refetch } = useQuery("all-users", getAllUsers, {
+		enabled: isLoggedIn,
+	});
 	const queryUser = useQuery("user", getUser);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -69,11 +65,7 @@ const Home: NextPage = () => {
 	}
 
 	return (
-		<Box
-			width={["100%", null, "90%", null, "80%"]}
-			mx="auto"
-			px={[6, 8, 0]}
-		>
+		<Box width={["100%", null, "90%", null, "80%"]} mx="auto" px={[6, 8, 0]}>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
 					Hello, {toNameCase(user!.name)}
