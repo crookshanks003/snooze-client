@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { useAppDispatch, useAppSelector } from "../store";
 import { toNameCase } from "../services/utils";
-import { addConnectedUser, removeConnectedUser, setConnectedUsers } from "../store/chat";
+import { addConnectedUser, removeConnectedUser } from "../store/chat";
 import { User } from "../types/auth";
 
 export function Chat({ client }: { client?: Socket }) {
@@ -43,10 +43,6 @@ export function Chat({ client }: { client?: Socket }) {
 			});
 			client.on("logout", (id: string) => {
 				dispatch(removeConnectedUser(id));
-			});
-			client.on("connectedusers", (msg: { id: string; user: User }[]) => {
-				console.log(msg);
-				dispatch(setConnectedUsers(msg));
 			});
 		}
 		return () => {

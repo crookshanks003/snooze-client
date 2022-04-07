@@ -1,4 +1,4 @@
-import { Box, Center, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, Center, Heading, SimpleGrid } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { Loader } from "../components/loader";
@@ -7,16 +7,22 @@ import { checkLoggedIn, toNameCase } from "../services/utils";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { fetchUser, setLoggedIn, setUser } from "../store/auth";
+import { setLoggedIn, setUser } from "../store/auth";
 import { io, Socket } from "socket.io-client";
 import { UserCard } from "../components/userCard";
 import { Chat } from "../components/chat";
+import { setConnectedUsers } from "../store/chat";
+import { User } from "../types/auth";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
-	const { data, isLoading, error, refetch } = useQuery("all-users", getAllUsers, {
-		enabled: isLoggedIn,
-	});
+	const { data, isLoading, error, refetch } = useQuery(
+		"all-users",
+		getAllUsers,
+		{
+			enabled: isLoggedIn,
+		},
+	);
 	const queryUser = useQuery("user", getUser);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -36,12 +42,17 @@ const Home: NextPage = () => {
 	useEffect(() => {
 		let socket: Socket;
 		if (isLoggedIn) {
-			console.log("connecting")
 			socket = io(process.env.NEXT_PUBLIC_API_URL!, {
 				extraHeaders: { googleid: user!.googleId },
 			});
 			socket.on("connect", () => {
-				console.log("connected");
+				socket.on(
+					"connectedusers",
+					(msg: { id: string; user: User }[]) => {
+						console.log(msg);
+						dispatch(setConnectedUsers(msg));
+					},
+				);
 			});
 			setClient(socket);
 		}
@@ -66,7 +77,11 @@ const Home: NextPage = () => {
 	}
 
 	return (
-		<Box width={["100%", null, "90%", null, "80%"]} mx="auto" px={[6, 8, 0]}>
+		<Box
+			width={["100%", null, "90%", null, "80%"]}
+			mx="auto"
+			px={[6, 8, 0]}
+		>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
 					Hello, {toNameCase(user!.name)}
