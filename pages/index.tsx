@@ -16,13 +16,9 @@ import { User } from "../types/auth";
 
 const Home: NextPage = () => {
 	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
-	const { data, isLoading, error, refetch } = useQuery(
-		"all-users",
-		getAllUsers,
-		{
-			enabled: isLoggedIn,
-		},
-	);
+	const { data, isLoading, error, refetch } = useQuery("all-users", getAllUsers, {
+		enabled: isLoggedIn,
+	});
 	const queryUser = useQuery("user", getUser);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
@@ -46,12 +42,9 @@ const Home: NextPage = () => {
 				extraHeaders: { googleid: user!.googleId },
 			});
 			socket.on("connect", () => {
-				socket.on(
-					"connectedusers",
-					(msg: { id: string; user: User }[]) => {
-						dispatch(setConnectedUsers(msg));
-					},
-				);
+				socket.on("connectedusers", (msg: { id: string; user: User }[]) => {
+					dispatch(setConnectedUsers(msg));
+				});
 			});
 			setClient(socket);
 		}
@@ -76,11 +69,7 @@ const Home: NextPage = () => {
 	}
 
 	return (
-		<Box
-			width={["100%", null, "90%", null, "80%"]}
-			mx="auto"
-			px={[6, 8, 0]}
-		>
+		<Box width={["100%", null, "90%", null, "80%"]} mx="auto" px={[6, 8, 0]}>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
 					Hello, {toNameCase(user?.name)}
@@ -89,7 +78,7 @@ const Home: NextPage = () => {
 			<Box maxH="60vh" overflowY="auto">
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
 					{data?.data.map((wingie) => (
-						<UserCard wingie={wingie} key={wingie.googleId} refetch={refetch}/>
+						<UserCard wingie={wingie} key={wingie.googleId} refetch={refetch} />
 					))}
 				</SimpleGrid>
 			</Box>

@@ -26,18 +26,14 @@ import {
 } from "@chakra-ui/react";
 import { BsPencil, BsThreeDotsVertical } from "react-icons/bs";
 import { ImSpoonKnife } from "react-icons/im";
-import {
-	changeMealTime,
-	changeRoomNumber,
-	changeStatus,
-} from "../services/api/auth";
+import { changeMealTime, changeRoomNumber, changeStatus } from "../services/api/auth";
 import { toNameCase } from "../services/utils";
 import { MealTime, SleepStatus, User } from "../types/auth";
 import { useAppSelector } from "../store";
 import React, { useEffect, useRef, useState } from "react";
 import { useStore } from "react-redux";
 
-export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
+export function UserCard({ wingie, refetch }: { wingie: User; refetch: any }) {
 	const { user } = useAppSelector((state) => state.auth);
 	const [buttonLoading, setButtonLoading] = useState(false);
 	const [meal, setMeal] = useState<MealTime[]>([]);
@@ -60,15 +56,11 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 		}
 	};
 
-	const onClickChangeStatus: React.MouseEventHandler<
-		HTMLButtonElement
-	> = async (_e) => {
+	const onClickChangeStatus: React.MouseEventHandler<HTMLButtonElement> = async (_e) => {
 		setButtonLoading(true);
 		try {
 			await changeStatus(
-				wingie!.sleepStatus === SleepStatus.asleep
-					? SleepStatus.awake
-					: SleepStatus.asleep,
+				wingie!.sleepStatus === SleepStatus.asleep ? SleepStatus.awake : SleepStatus.asleep,
 			);
 			toast({
 				title: "Status changed successfully!",
@@ -133,16 +125,10 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 								color="gray.600"
 							/>
 							<MenuList>
-								<MenuItem
-									icon={<BsPencil />}
-									onClick={onClickChangeStatus}
-								>
+								<MenuItem icon={<BsPencil />} onClick={onClickChangeStatus}>
 									Change Status
 								</MenuItem>
-								<MenuItem
-									icon={<ImSpoonKnife />}
-									onClick={onOpen}
-								>
+								<MenuItem icon={<ImSpoonKnife />} onClick={onOpen}>
 									Change Meal
 								</MenuItem>
 							</MenuList>
@@ -167,14 +153,14 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 						</Tooltip>
 					</Avatar>
 					<Box color="gray.500" mt="2">
-						{ wingie.googleId === user?.googleId && roomState ? (
+						{wingie.googleId === user?.googleId && roomState ? (
 							<form
 								onSubmit={async (e) => {
 									e.preventDefault();
 									setButtonLoading(true);
 									await changeRoomNumber(roomNumber);
 									setButtonLoading(false);
-									refetch()
+									refetch();
 									roomRef.current?.blur();
 								}}
 							>
@@ -203,12 +189,7 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 								{wingie.roomNumber}
 							</Text>
 						)}
-						<Text
-							fontWeight="600"
-							fontSize="lg"
-							color="gray.700"
-							mt={-1}
-						>
+						<Text fontWeight="600" fontSize="lg" color="gray.700" mt={-1}>
 							{toNameCase(wingie.name)}
 						</Text>
 						<Text mt={2} fontSize="sm">
@@ -227,9 +208,7 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 							<Checkbox
 								value="breakfast"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(
-									MealTime.BREAKFAST,
-								)}
+								defaultIsChecked={meal.includes(MealTime.BREAKFAST)}
 							>
 								Breakfast
 							</Checkbox>
@@ -243,18 +222,14 @@ export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 							<Checkbox
 								value="snacks"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(
-									MealTime.SNACKS,
-								)}
+								defaultIsChecked={meal.includes(MealTime.SNACKS)}
 							>
 								Snacks
 							</Checkbox>
 							<Checkbox
 								value="dinner"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(
-									MealTime.DINNER,
-								)}
+								defaultIsChecked={meal.includes(MealTime.DINNER)}
 							>
 								Dinner
 							</Checkbox>

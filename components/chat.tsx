@@ -28,7 +28,7 @@ export function Chat({ client }: { client?: Socket }) {
 	const sendMessage = (_e: any) => {
 		if (message) {
 			client!.emit("message", { message, user: toNameCase(user!.name) });
-			setChat([...chat, { message, user: toNameCase(user!.name) }]);
+			setChat([...chat, { message, user: toNameCase(user!.name)! }]);
 			setMessage("");
 		}
 	};
