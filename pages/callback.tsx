@@ -2,16 +2,14 @@ import { Text } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useAppDispatch } from "../store";
-import { fetchUser } from "../store/auth";
+import { setToken } from "../services/utils";
 
 const Callback: NextPage = () => {
 	const router = useRouter();
 	const { token } = router.query;
-	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		dispatch(fetchUser());
+		setToken(token as string);
 		router.replace("/");
 	});
 

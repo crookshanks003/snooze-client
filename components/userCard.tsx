@@ -29,21 +29,23 @@ import { changeMealTime, changeStatus } from "../services/api/auth";
 import { toNameCase } from "../services/utils";
 import { MealTime, SleepStatus, User } from "../types/auth";
 import { useAppSelector } from "../store";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setMealTime } from "../store/auth";
 
 export function UserCard({ wingie }: { wingie: User }) {
 	const { user } = useAppSelector((state) => state.auth);
 	const [buttonLoading, setButtonLoading] = useState(false);
-	const [meal, setMeal] = useState<MealTime[]>([]);
+	const dispatch = useDispatch();
 	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const onMealSelect: React.ChangeEventHandler<HTMLInputElement> = (e) => {
 		if (e.target.checked) {
-			setMeal([...meal, e.target.value as MealTime]);
+			dispatch(setMealTime([...user!.mealTime, e.target.value as MealTime]));
 		} else {
-			const newMeal = meal.filter((meal) => meal !== e.target.value);
-			setMeal(newMeal);
+			const newMeal = user!.mealTime.filter((meal) => meal !== e.target.value);
+			dispatch(setMealTime(newMeal));
 		}
 	};
 
@@ -72,7 +74,7 @@ export function UserCard({ wingie }: { wingie: User }) {
 	const onChangeMealTime = async () => {
 		setButtonLoading(true);
 		try {
-			await changeMealTime(meal);
+			await changeMealTime(user!.mealTime);
 			toast({
 				title: "Status changed successfully!",
 				status: "success",
@@ -88,10 +90,6 @@ export function UserCard({ wingie }: { wingie: User }) {
 		}
 		setButtonLoading(false);
 	};
-
-	useEffect(() => {
-		setMeal(wingie.mealTime);
-	}, []);
 
 	return (
 		<>
@@ -166,28 +164,28 @@ export function UserCard({ wingie }: { wingie: User }) {
 							<Checkbox
 								value="breakfast"
 								onChange={onMealSelect}
-								isChecked={meal.includes(MealTime.BREAKFAST)}
+								isChecked={user!.mealTime.includes(MealTime.BREAKFAST)}
 							>
 								Breakfast
 							</Checkbox>
 							<Checkbox
 								value="lunch"
 								onChange={onMealSelect}
-								isChecked={meal.includes(MealTime.LUNCH)}
+								isChecked={user!.mealTime.includes(MealTime.LUNCH)}
 							>
 								Lunch
 							</Checkbox>
 							<Checkbox
 								value="snacks"
 								onChange={onMealSelect}
-								isChecked={meal.includes(MealTime.SNACKS)}
+								isChecked={user!.mealTime.includes(MealTime.SNACKS)}
 							>
 								Snacks
 							</Checkbox>
 							<Checkbox
 								value="dinner"
 								onChange={onMealSelect}
-								isChecked={meal.includes(MealTime.DINNER)}
+								isChecked={user!.mealTime.includes(MealTime.DINNER)}
 							>
 								Dinner
 							</Checkbox>

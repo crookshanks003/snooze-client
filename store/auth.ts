@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getUser } from "../services/api/auth";
-import { User } from "../types/auth";
+import { MealTime, User } from "../types/auth";
 
 interface AuthState {
+	//just so that if we ever move to cookie based auth
 	isLoggedIn: boolean;
 	loading: boolean;
 	user?: User;
@@ -38,7 +39,10 @@ export const authSlice = createSlice({
 		},
 		setLoading: (state, action: PayloadAction<boolean>) => {
 			state.loading = action.payload;
-		}
+		},
+		setMealTime: (state, action: PayloadAction<MealTime[]>) => {
+			state.user = {...state.user!, mealTime: action.payload};
+		},
 	},
 	extraReducers: (builder) => {
 		builder.addCase(fetchUser.fulfilled, (state, action) => {
@@ -58,5 +62,5 @@ export const authSlice = createSlice({
 	},
 });
 
-export const { setLoggedIn, setUser } = authSlice.actions;
+export const { setLoggedIn, setUser, setMealTime } = authSlice.actions;
 export const authReducer = authSlice.reducer;

@@ -2,24 +2,20 @@ import { FcGoogle } from "react-icons/fc";
 import { Box, Heading, Text, Button, Stack, Center, Flex, Link } from "@chakra-ui/react";
 import { NextPage } from "next";
 import React, { useEffect } from "react";
-import { fetchUser } from "../store/auth";
 import { useAppDispatch, useAppSelector } from "../store";
 import { useRouter } from "next/router";
 import { Loader } from "../components/loader";
+import { checkLoggedIn } from "../services/utils";
+import { setLoggedIn } from "../store/auth";
 
 const Login: NextPage = () => {
-	const { isLoggedIn, user, loading } = useAppSelector((state) => state.auth);
+	const { isLoggedIn, loading } = useAppSelector((state) => state.auth);
 	const router = useRouter();
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		if (!isLoggedIn) {
-			dispatch(fetchUser());
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isLoggedIn) {
+		if (checkLoggedIn()){
+			dispatch(setLoggedIn(true));
 			router.push("/");
 		}
 	});
