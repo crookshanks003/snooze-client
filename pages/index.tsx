@@ -36,6 +36,7 @@ const Home: NextPage = () => {
 	useEffect(() => {
 		let socket: Socket;
 		if (isLoggedIn) {
+			console.log("connecting")
 			socket = io(process.env.NEXT_PUBLIC_API_URL!, {
 				extraHeaders: { googleid: user!.googleId },
 			});
@@ -47,7 +48,7 @@ const Home: NextPage = () => {
 		return () => {
 			if (socket) socket.close();
 		};
-	}, []);
+	}, [isLoggedIn]);
 
 	useEffect(() => {
 		if (client) {
@@ -71,7 +72,7 @@ const Home: NextPage = () => {
 					Hello, {toNameCase(user!.name)}
 				</Heading>
 			</Center>
-			<Box>
+			<Box maxH="60vh" overflowY="auto">
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
 					{data.data.map((wingie) => (
 						<UserCard wingie={wingie} key={wingie.googleId} />

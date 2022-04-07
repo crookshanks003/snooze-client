@@ -20,7 +20,7 @@ import { User } from "../types/auth";
 
 export function Chat({ client }: { client?: Socket }) {
 	const [chat, setChat] = useState<{ message: string; user: string }[]>([]);
-	const [message, setMessage] = useState<string>();
+	const [message, setMessage] = useState<string>("");
 	const { user } = useAppSelector((state) => state.auth);
 	const { connectedUsers } = useAppSelector((state) => state.chat);
 	const dispatch = useAppDispatch();
@@ -29,6 +29,7 @@ export function Chat({ client }: { client?: Socket }) {
 		if (message) {
 			client!.emit("message", { message, user: toNameCase(user!.name) });
 			setChat([...chat, { message, user: toNameCase(user!.name) }]);
+			setMessage("");
 		}
 	};
 
@@ -44,6 +45,7 @@ export function Chat({ client }: { client?: Socket }) {
 				dispatch(removeConnectedUser(id));
 			});
 			client.on("connectedusers", (msg: { id: string; user: User }[]) => {
+				console.log(msg);
 				dispatch(setConnectedUsers(msg));
 			});
 		}
@@ -65,13 +67,13 @@ export function Chat({ client }: { client?: Socket }) {
 			width={["100%", null, "45%", "35%", "25%"]}
 		>
 			<Box overflowY="auto" maxH="20vh" css={{ scrollbarWidth: "thin" }} px="1">
-				{chat.map((msg) => (
+				{chat.map((msg, idx) => (
 					<Text
-						key={msg.message}
+						key={idx}
 						as={Flex}
 						justifyContent={msg.user === toNameCase(user!.name) ? "end" : "start"}
 					>
-						{msg.message}
+						<strong>{msg.user}</strong>: {msg.message}
 					</Text>
 				))}
 			</Box>
@@ -81,7 +83,7 @@ export function Chat({ client }: { client?: Socket }) {
 					sendMessage(e);
 				}}
 			>
-				<HStack spacing="4px">
+				<HStack spacing="4px" mt={2}>
 					{connectedUsers.map((client) => (
 						<Tooltip
 							label={toNameCase(client.user.name.split(" ")[0])}
@@ -100,9 +102,9 @@ export function Chat({ client }: { client?: Socket }) {
 				<InputGroup mt="4">
 					<Input
 						colorScheme="gray.500"
-						type="tel"
 						placeholder="message"
 						onChange={(e) => setMessage(e.target.value)}
+						value={message}
 					/>
 					<InputRightAddon as={IconButton} icon={<IoMdSend />} onClick={sendMessage} />
 				</InputGroup>
