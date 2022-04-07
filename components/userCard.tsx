@@ -6,6 +6,7 @@ import {
 	Checkbox,
 	Flex,
 	IconButton,
+	Input,
 	Menu,
 	MenuButton,
 	MenuItem,
@@ -25,18 +26,30 @@ import {
 } from "@chakra-ui/react";
 import { BsPencil, BsThreeDotsVertical } from "react-icons/bs";
 import { ImSpoonKnife } from "react-icons/im";
-import { changeMealTime, changeStatus } from "../services/api/auth";
+import {
+	changeMealTime,
+	changeRoomNumber,
+	changeStatus,
+} from "../services/api/auth";
 import { toNameCase } from "../services/utils";
 import { MealTime, SleepStatus, User } from "../types/auth";
 import { useAppSelector } from "../store";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useStore } from "react-redux";
 
-export function UserCard({ wingie }: { wingie: User }) {
+export function UserCard({ wingie, refetch}: { wingie: User, refetch: any}) {
 	const { user } = useAppSelector((state) => state.auth);
 	const [buttonLoading, setButtonLoading] = useState(false);
 	const [meal, setMeal] = useState<MealTime[]>([]);
+	const [roomState, setRoomState] = useState(false);
+	const [roomNumber, setRoomNumber] = useState(wingie.roomNumber);
+	const roomRef = useRef<HTMLInputElement>(null);
 	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const onRoomClick: React.MouseEventHandler<HTMLElement> = () => {
+		setRoomState(!roomState);
+	};
 
 	const onMealSelect: React.ChangeEventHandler<HTMLInputElement> = (e) => {
 		if (e.target.checked) {
@@ -47,11 +60,15 @@ export function UserCard({ wingie }: { wingie: User }) {
 		}
 	};
 
-	const onClickChangeStatus: React.MouseEventHandler<HTMLButtonElement> = async (_e) => {
+	const onClickChangeStatus: React.MouseEventHandler<
+		HTMLButtonElement
+	> = async (_e) => {
 		setButtonLoading(true);
 		try {
 			await changeStatus(
-				wingie!.sleepStatus === SleepStatus.asleep ? SleepStatus.awake : SleepStatus.asleep,
+				wingie!.sleepStatus === SleepStatus.asleep
+					? SleepStatus.awake
+					: SleepStatus.asleep,
 			);
 			toast({
 				title: "Status changed successfully!",
@@ -116,10 +133,16 @@ export function UserCard({ wingie }: { wingie: User }) {
 								color="gray.600"
 							/>
 							<MenuList>
-								<MenuItem icon={<BsPencil />} onClick={onClickChangeStatus}>
+								<MenuItem
+									icon={<BsPencil />}
+									onClick={onClickChangeStatus}
+								>
 									Change Status
 								</MenuItem>
-								<MenuItem icon={<ImSpoonKnife />} onClick={onOpen}>
+								<MenuItem
+									icon={<ImSpoonKnife />}
+									onClick={onOpen}
+								>
 									Change Meal
 								</MenuItem>
 							</MenuList>
@@ -144,10 +167,48 @@ export function UserCard({ wingie }: { wingie: User }) {
 						</Tooltip>
 					</Avatar>
 					<Box color="gray.500" mt="2">
-						<Text as="small" fontWeight="500" color="gray.500">
-							{wingie.roomNumber}
-						</Text>
-						<Text fontWeight="600" fontSize="lg" color="gray.700" mt={-1}>
+						{ wingie.googleId === user?.googleId && roomState ? (
+							<form
+								onSubmit={async (e) => {
+									e.preventDefault();
+									setButtonLoading(true);
+									await changeRoomNumber(roomNumber);
+									setButtonLoading(false);
+									refetch()
+									roomRef.current?.blur();
+								}}
+							>
+								<Input
+									colorScheme="gray.500"
+									type="number"
+									value={roomNumber}
+									onChange={(e) => {
+										setRoomNumber(parseInt(e.target.value));
+									}}
+									onBlur={() => setRoomState(!roomState)}
+									width={10}
+									size="xs"
+									ref={roomRef}
+									maxLength={3}
+									autoFocus
+								/>
+							</form>
+						) : (
+							<Text
+								as="small"
+								fontWeight="500"
+								color="gray.500"
+								onClick={onRoomClick}
+							>
+								{wingie.roomNumber}
+							</Text>
+						)}
+						<Text
+							fontWeight="600"
+							fontSize="lg"
+							color="gray.700"
+							mt={-1}
+						>
 							{toNameCase(wingie.name)}
 						</Text>
 						<Text mt={2} fontSize="sm">
@@ -166,7 +227,9 @@ export function UserCard({ wingie }: { wingie: User }) {
 							<Checkbox
 								value="breakfast"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(MealTime.BREAKFAST)}
+								defaultIsChecked={meal.includes(
+									MealTime.BREAKFAST,
+								)}
 							>
 								Breakfast
 							</Checkbox>
@@ -180,14 +243,18 @@ export function UserCard({ wingie }: { wingie: User }) {
 							<Checkbox
 								value="snacks"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(MealTime.SNACKS)}
+								defaultIsChecked={meal.includes(
+									MealTime.SNACKS,
+								)}
 							>
 								Snacks
 							</Checkbox>
 							<Checkbox
 								value="dinner"
 								onChange={onMealSelect}
-								defaultIsChecked={meal.includes(MealTime.DINNER)}
+								defaultIsChecked={meal.includes(
+									MealTime.DINNER,
+								)}
 							>
 								Dinner
 							</Checkbox>

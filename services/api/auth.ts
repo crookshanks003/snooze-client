@@ -34,3 +34,11 @@ export function changeMealTime(mealTime: MealTime[]) {
 		{ headers: { jwt: getToken() } },
 	);
 }
+
+export function changeRoomNumber(num: number) {
+	return client.post(
+		"/room",
+		{ roomNumber: num },
+		{ headers: { jwt: getToken() } },
+	);
+}

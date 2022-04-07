@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 	const [client, setClient] = useState<Socket>();
 
 	useEffect(() => {
-		if (!checkLoggedIn()) {
+		if (!checkLoggedIn() || !isLoggedIn) {
 			router.push("/login");
 		} else {
 			if (queryUser.data) {
@@ -37,11 +37,11 @@ const Home: NextPage = () => {
 				dispatch(setLoggedIn(true));
 			}
 		}
-	}, [queryUser]);
+	}, [queryUser, isLoggedIn]);
 
 	useEffect(() => {
 		let socket: Socket;
-		if (isLoggedIn) {
+		if (isLoggedIn && user) {
 			socket = io(process.env.NEXT_PUBLIC_API_URL!, {
 				extraHeaders: { googleid: user!.googleId },
 			});
@@ -49,7 +49,6 @@ const Home: NextPage = () => {
 				socket.on(
 					"connectedusers",
 					(msg: { id: string; user: User }[]) => {
-						console.log(msg);
 						dispatch(setConnectedUsers(msg));
 					},
 				);
@@ -59,7 +58,7 @@ const Home: NextPage = () => {
 		return () => {
 			if (socket) socket.close();
 		};
-	}, [isLoggedIn]);
+	}, [isLoggedIn, user]);
 
 	useEffect(() => {
 		if (client) {
@@ -72,7 +71,7 @@ const Home: NextPage = () => {
 		};
 	});
 
-	if (!data || isLoading || loading || !isLoggedIn || queryUser.isLoading) {
+	if (isLoading || loading || queryUser.isLoading) {
 		return <Loader />;
 	}
 
@@ -84,13 +83,13 @@ const Home: NextPage = () => {
 		>
 			<Center>
 				<Heading size="2xl" mt={8} textAlign="center">
-					Hello, {toNameCase(user!.name)}
+					Hello, {toNameCase(user?.name)}
 				</Heading>
 			</Center>
 			<Box maxH="60vh" overflowY="auto">
 				<SimpleGrid mt="10" gap="6" columns={[1, 2, null, 4]}>
-					{data.data.map((wingie) => (
-						<UserCard wingie={wingie} key={wingie.googleId} />
+					{data?.data.map((wingie) => (
+						<UserCard wingie={wingie} key={wingie.googleId} refetch={refetch}/>
 					))}
 				</SimpleGrid>
 			</Box>
